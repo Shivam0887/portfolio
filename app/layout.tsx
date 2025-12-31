@@ -4,8 +4,14 @@ import type { Metadata } from "next"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 
-import { Geist, Geist_Mono } from "next/font/google" // correctly import Geist and Geist_Mono
-import { PageTransition } from "@/components/page-transition" // Import PageTransition
+// Adding Playfair Display for editorial headlines alongside Geist
+
+import { PageTransition } from "@/components/page-transition"
+
+import { Geist_Mono, Playfair_Display, Geist_Mono as V0_Font_Geist_Mono } from 'next/font/google'
+
+// Initialize fonts
+const _geistMono = V0_Font_Geist_Mono({ subsets: ['latin'], weight: ["100","200","300","400","500","600","700","800","900"] })
 
 const geistSans = Geist({
   subsets: ["latin"],
@@ -14,7 +20,14 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   subsets: ["latin"],
-  variable: "--font-mono",
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+})
+
+// Adding serif font for editorial impact
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-serif",
+  weight: ["400", "500", "600", "700", "800", "900"],
 })
 
 export const metadata: Metadata = {
@@ -46,15 +59,14 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
+    // Adding serif font variable to html element
     <html lang="en" className="scroll-smooth">
-      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased selection:bg-primary/20`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} font-sans antialiased selection:bg-primary/20`}
+      >
         <PageTransition>{children}</PageTransition>
         <Analytics />
       </body>
     </html>
   )
 }
-import { Geist_Mono as V0_Font_Geist_Mono } from 'next/font/google'
-
-// Initialize fonts
-const _geistMono = V0_Font_Geist_Mono({ subsets: ['latin'], weight: ["100","200","300","400","500","600","700","800","900"] })
