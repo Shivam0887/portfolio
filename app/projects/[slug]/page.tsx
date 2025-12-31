@@ -1,23 +1,27 @@
-import { Navigation } from "@/components/navigation"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { ChevronLeft, ExternalLink, Github } from "lucide-react"
-import Link from "next/link"
-import { getProjectBySlug, PROJECTS } from "@/lib/data"
-import { notFound } from "next/navigation"
+import { Navigation } from "@/components/navigation";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { ChevronLeft, ExternalLink, Github } from "lucide-react";
+import Link from "next/link";
+import { getProjectBySlug, PROJECTS } from "@/lib/data";
+import { notFound } from "next/navigation";
 
 export function generateStaticParams() {
   return PROJECTS.map((project) => ({
     slug: project.slug,
-  }))
+  }));
 }
 
-export default function ProjectPage({ params }: { params: { slug: string } }) {
-  const project = getProjectBySlug(params.slug)
+export default async function ProjectPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const project = getProjectBySlug((await params).slug);
 
   if (!project) {
-    notFound()
+    notFound();
   }
 
   return (
@@ -39,7 +43,9 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
             <div className="size-16 rounded-3xl bg-secondary/30 flex items-center justify-center border border-border/20 shadow-sm">
               <span className="text-primary">{project.icon}</span>
             </div>
-            <h1 className="text-5xl md:text-7xl font-medium tracking-tight leading-[0.95]">{project.title}</h1>
+            <h1 className="text-5xl md:text-7xl font-medium tracking-tight leading-[0.95]">
+              {project.title}
+            </h1>
             <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl leading-relaxed font-light">
               {project.description}
             </p>
@@ -58,13 +64,20 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
 
             <div className="flex gap-3 pt-4">
               {project.liveUrl && (
-                <Button size="lg" className="rounded-full gap-2 bg-foreground text-background hover:bg-foreground/90">
+                <Button
+                  size="lg"
+                  className="rounded-full gap-2 bg-foreground text-background hover:bg-foreground/90"
+                >
                   <ExternalLink className="size-4" />
                   View Live
                 </Button>
               )}
               {project.githubUrl && (
-                <Button variant="outline" size="lg" className="rounded-full gap-2 bg-transparent">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="rounded-full gap-2 bg-transparent"
+                >
                   <Github className="size-4" />
                   Source Code
                 </Button>
@@ -78,15 +91,23 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
         {/* Project Details Grid */}
         <div className="grid md:grid-cols-3 gap-8 md:gap-12">
           <div className="space-y-2">
-            <h3 className="text-sm font-mono uppercase tracking-widest text-muted-foreground">Role</h3>
-            <p className="text-lg">{project.role || "Technical Lead & Architect"}</p>
+            <h3 className="text-sm font-mono uppercase tracking-widest text-muted-foreground">
+              Role
+            </h3>
+            <p className="text-lg">
+              {project.role || "Technical Lead & Architect"}
+            </p>
           </div>
           <div className="space-y-2">
-            <h3 className="text-sm font-mono uppercase tracking-widest text-muted-foreground">Timeline</h3>
+            <h3 className="text-sm font-mono uppercase tracking-widest text-muted-foreground">
+              Timeline
+            </h3>
             <p className="text-lg">{project.timeline || "2024 - Present"}</p>
           </div>
           <div className="space-y-2">
-            <h3 className="text-sm font-mono uppercase tracking-widest text-muted-foreground">Status</h3>
+            <h3 className="text-sm font-mono uppercase tracking-widest text-muted-foreground">
+              Status
+            </h3>
             <p className="text-lg">{project.status || "In Production"}</p>
           </div>
         </div>
@@ -99,19 +120,27 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
             <div className="space-y-12">
               {project.overview && (
                 <section className="space-y-4">
-                  <h2 className="text-3xl font-medium tracking-tight">Overview</h2>
-                  <p className="text-xl text-muted-foreground leading-relaxed font-light">{project.overview}</p>
+                  <h2 className="text-3xl font-medium tracking-tight">
+                    Overview
+                  </h2>
+                  <p className="text-xl text-muted-foreground leading-relaxed font-light">
+                    {project.overview}
+                  </p>
                 </section>
               )}
 
               {project.sections?.map((section, idx) => (
                 <div key={idx} className="space-y-6 pt-8">
                   {section.title && (
-                    <h3 className="text-2xl font-medium tracking-tight text-foreground">{section.title}</h3>
+                    <h3 className="text-2xl font-medium tracking-tight text-foreground">
+                      {section.title}
+                    </h3>
                   )}
 
                   {section.type === "text" && (
-                    <p className="text-lg leading-relaxed text-muted-foreground">{section.content}</p>
+                    <p className="text-lg leading-relaxed text-muted-foreground">
+                      {section.content}
+                    </p>
                   )}
 
                   {section.type === "callout" && (
@@ -140,22 +169,34 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
 
               {project.challenge && (
                 <section className="space-y-4">
-                  <h2 className="text-3xl font-medium tracking-tight">The Challenge</h2>
-                  <p className="text-lg text-muted-foreground leading-relaxed">{project.challenge}</p>
+                  <h2 className="text-3xl font-medium tracking-tight">
+                    The Challenge
+                  </h2>
+                  <p className="text-lg text-muted-foreground leading-relaxed">
+                    {project.challenge}
+                  </p>
                 </section>
               )}
 
               {project.solution && (
                 <section className="space-y-4">
-                  <h2 className="text-3xl font-medium tracking-tight">The Solution</h2>
-                  <p className="text-lg text-muted-foreground leading-relaxed">{project.solution}</p>
+                  <h2 className="text-3xl font-medium tracking-tight">
+                    The Solution
+                  </h2>
+                  <p className="text-lg text-muted-foreground leading-relaxed">
+                    {project.solution}
+                  </p>
                 </section>
               )}
 
               {project.outcome && (
                 <section className="space-y-4">
-                  <h2 className="text-3xl font-medium tracking-tight">Results</h2>
-                  <p className="text-lg text-muted-foreground leading-relaxed">{project.outcome}</p>
+                  <h2 className="text-3xl font-medium tracking-tight">
+                    Results
+                  </h2>
+                  <p className="text-lg text-muted-foreground leading-relaxed">
+                    {project.outcome}
+                  </p>
                 </section>
               )}
             </div>
@@ -163,5 +204,5 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
         </div>
       </article>
     </main>
-  )
+  );
 }
