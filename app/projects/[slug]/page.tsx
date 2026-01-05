@@ -1,14 +1,38 @@
-import { Navigation } from "@/components/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ChevronLeft, ExternalLink, Github } from "lucide-react";
 import Link from "next/link";
-import { getProjectBySlug, PROJECTS } from "@/lib/data";
+import { getProjectDataBySlug, getProjectsData } from "@/lib/data.server";
 import { notFound } from "next/navigation";
+import {
+  Code2,
+  Cpu,
+  Globe,
+  Sparkles,
+  Zap,
+  Database,
+  Shield,
+  Layers,
+} from "lucide-react";
+import React from "react";
+import { MermaidRenderer } from "@/components/ui/mermaid-renderer";
 
-export function generateStaticParams() {
-  return PROJECTS.map((project) => ({
+// Icon mapping for dynamic icon resolution
+const iconMap: Record<string, React.ReactNode> = {
+  Cpu: <Cpu className="size-6" />,
+  Code2: <Code2 className="size-6" />,
+  Globe: <Globe className="size-6" />,
+  Sparkles: <Sparkles className="size-6" />,
+  Zap: <Zap className="size-6" />,
+  Database: <Database className="size-6" />,
+  Shield: <Shield className="size-6" />,
+  Layers: <Layers className="size-6" />,
+};
+
+export async function generateStaticParams() {
+  const projects = await getProjectsData();
+  return projects.map((project) => ({
     slug: project.slug,
   }));
 }
@@ -18,19 +42,17 @@ export default async function ProjectPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const project = getProjectBySlug((await params).slug);
+  const projectData = await getProjectDataBySlug((await params).slug);
 
-  if (!project) {
+  if (!projectData) {
     notFound();
   }
 
   return (
     <main className="min-h-screen pt-32 pb-20 px-6">
-      <Navigation />
-
-      <article className="max-w-5xl mx-auto space-y-16">
+      <article className="max-w-3xl mx-auto space-y-12">
         {/* Project Header */}
-        <header className="space-y-8">
+        <header className="space-y-8 text-center md:text-left">
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -39,19 +61,16 @@ export default async function ProjectPage({
             Back to Work
           </Link>
 
-          <div className="space-y-6">
-            <div className="size-16 rounded-3xl bg-secondary/30 flex items-center justify-center border border-border/20 shadow-sm">
-              <span className="text-primary">{project.icon}</span>
-            </div>
-            <h1 className="text-5xl md:text-7xl font-medium tracking-tight leading-[0.95]">
-              {project.title}
+          <div className="space-y-8">
+            <h1 className="text-6xl md:text-9xl font-serif font-medium tracking-tighter leading-[0.8] text-balance">
+              {projectData.title}
             </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl leading-relaxed font-light">
-              {project.description}
+            <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl leading-[1.2] font-normal text-pretty">
+              {projectData.description}
             </p>
 
             <div className="flex flex-wrap gap-2">
-              {project.tags.map((tag) => (
+              {projectData.tags.map((tag: string) => (
                 <Badge
                   key={tag}
                   variant="secondary"
@@ -62,23 +81,23 @@ export default async function ProjectPage({
               ))}
             </div>
 
-            <div className="flex gap-3 pt-4">
-              {project.liveUrl && (
+            <div className="flex flex-wrap gap-4 pt-8">
+              {projectData.liveUrl && (
                 <Button
                   size="lg"
-                  className="rounded-full gap-2 bg-foreground text-background hover:bg-foreground/90"
+                  className="rounded-full px-10 h-12 bg-foreground text-background hover:scale-[1.02] active:scale-[0.98] transition-all duration-500 font-medium"
                 >
-                  <ExternalLink className="size-4" />
+                  <ExternalLink className="size-5 mr-3" />
                   View Live
                 </Button>
               )}
-              {project.githubUrl && (
+              {projectData.githubUrl && (
                 <Button
                   variant="outline"
                   size="lg"
-                  className="rounded-full gap-2 bg-transparent"
+                  className="rounded-full px-10 h-12 border-black/10 hover:bg-black/2 hover:scale-[1.02] active:scale-[0.98] transition-all duration-500 font-light"
                 >
-                  <Github className="size-4" />
+                  <Github className="size-5 mr-3" />
                   Source Code
                 </Button>
               )}
@@ -95,20 +114,22 @@ export default async function ProjectPage({
               Role
             </h3>
             <p className="text-lg">
-              {project.role || "Technical Lead & Architect"}
+              {projectData.role || "Technical Lead & Architect"}
             </p>
           </div>
           <div className="space-y-2">
             <h3 className="text-sm font-mono uppercase tracking-widest text-muted-foreground">
               Timeline
             </h3>
-            <p className="text-lg">{project.timeline || "2024 - Present"}</p>
+            <p className="text-lg">
+              {projectData.timeline || "2024 - Present"}
+            </p>
           </div>
           <div className="space-y-2">
             <h3 className="text-sm font-mono uppercase tracking-widest text-muted-foreground">
               Status
             </h3>
-            <p className="text-lg">{project.status || "In Production"}</p>
+            <p className="text-lg">{projectData.status || "In Production"}</p>
           </div>
         </div>
 
@@ -118,21 +139,26 @@ export default async function ProjectPage({
         <div className="space-y-16">
           <div className="prose dark:prose-invert prose-neutral max-w-none">
             <div className="space-y-12">
-              {project.overview && (
+              {projectData.overview && (
                 <section className="space-y-4">
-                  <h2 className="text-3xl font-medium tracking-tight">
+                  <h2 className="text-4xl font-serif font-medium tracking-tight">
                     Overview
                   </h2>
                   <p className="text-xl text-muted-foreground leading-relaxed font-light">
-                    {project.overview}
+                    {projectData.overview}
                   </p>
                 </section>
               )}
 
-              {project.sections?.map((section, idx) => (
+              {/* Tiptap Content Rendering */}
+              {projectData.content && (
+                <MermaidRenderer content={projectData.content} />
+              )}
+
+              {projectData.sections?.map((section: any, idx: number) => (
                 <div key={idx} className="space-y-6 pt-8">
                   {section.title && (
-                    <h3 className="text-2xl font-medium tracking-tight text-foreground">
+                    <h3 className="text-3xl font-serif font-medium tracking-tight text-foreground">
                       {section.title}
                     </h3>
                   )}
@@ -150,16 +176,16 @@ export default async function ProjectPage({
                   )}
 
                   {section.type === "code" && (
-                    <div className="bg-secondary/30 border border-border/50 rounded-[2rem] p-10 font-mono text-sm overflow-hidden relative group glass">
-                      <div className="absolute top-6 right-8 text-[10px] uppercase tracking-widest text-muted-foreground opacity-50 font-mono">
+                    <div className="bg-black/2 border border-black/5 rounded-[2.5rem] p-12 font-mono text-sm overflow-hidden relative group">
+                      <div className="absolute top-8 right-10 text-[10px] uppercase tracking-[0.2em] text-muted-foreground/40 font-mono">
                         {section.language || "source"}
                       </div>
-                      <div className="flex items-center gap-2 mb-6 opacity-50">
-                        <div className="size-2.5 rounded-full bg-red-500/50" />
-                        <div className="size-2.5 rounded-full bg-amber-500/50" />
-                        <div className="size-2.5 rounded-full bg-green-500/50" />
+                      <div className="flex items-center gap-2.5 mb-8 opacity-30">
+                        <div className="size-3 rounded-full bg-black/10" />
+                        <div className="size-3 rounded-full bg-black/10" />
+                        <div className="size-3 rounded-full bg-black/10" />
                       </div>
-                      <code className="block whitespace-pre text-foreground/90 overflow-x-auto leading-relaxed">
+                      <code className="block whitespace-pre text-foreground/80 overflow-x-auto leading-relaxed">
                         {section.content}
                       </code>
                     </div>
@@ -167,35 +193,35 @@ export default async function ProjectPage({
                 </div>
               ))}
 
-              {project.challenge && (
+              {projectData.challenge && (
                 <section className="space-y-4">
                   <h2 className="text-3xl font-medium tracking-tight">
                     The Challenge
                   </h2>
                   <p className="text-lg text-muted-foreground leading-relaxed">
-                    {project.challenge}
+                    {projectData.challenge}
                   </p>
                 </section>
               )}
 
-              {project.solution && (
+              {projectData.solution && (
                 <section className="space-y-4">
                   <h2 className="text-3xl font-medium tracking-tight">
                     The Solution
                   </h2>
                   <p className="text-lg text-muted-foreground leading-relaxed">
-                    {project.solution}
+                    {projectData.solution}
                   </p>
                 </section>
               )}
 
-              {project.outcome && (
+              {projectData.outcome && (
                 <section className="space-y-4">
                   <h2 className="text-3xl font-medium tracking-tight">
                     Results
                   </h2>
                   <p className="text-lg text-muted-foreground leading-relaxed">
-                    {project.outcome}
+                    {projectData.outcome}
                   </p>
                 </section>
               )}

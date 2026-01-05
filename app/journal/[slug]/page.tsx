@@ -1,16 +1,17 @@
-import { Navigation } from "@/components/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ChevronLeft, Share2, Bookmark } from "lucide-react";
+import { ChevronLeft, Share2, Bookmark, Calendar, Clock } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-// Import centralized data utilities
-import { getPostBySlug, POSTS } from "@/lib/data";
+// Import from server-only data module for RSC
+import { getPostBySlug, getPosts } from "@/lib/data.server";
 import { notFound } from "next/navigation";
+import { MermaidRenderer } from "@/components/ui/mermaid-renderer";
 
 // Generate static params for all posts
-export function generateStaticParams() {
-  return POSTS.map((post) => ({
+export async function generateStaticParams() {
+  const posts = await getPosts();
+  return posts.map((post) => ({
     slug: post.slug,
   }));
 }
@@ -22,7 +23,7 @@ export default async function BlogPostPage({
   params: Promise<{ slug: string }>;
 }) {
   // Fetch post data from centralized source
-  const post = getPostBySlug((await params).slug);
+  const post = await getPostBySlug((await params).slug);
 
   if (!post) {
     notFound();
@@ -30,8 +31,6 @@ export default async function BlogPostPage({
 
   return (
     <main className="min-h-screen pt-32 pb-20 px-6">
-      <Navigation />
-
       <article className="max-w-3xl mx-auto space-y-12">
         {/* Post Header */}
         <header className="space-y-8 text-center md:text-left">
@@ -45,20 +44,23 @@ export default async function BlogPostPage({
 
           <div className="space-y-4">
             <Badge
-              variant="outline"
-              className="rounded-full px-4 border-border/50 uppercase tracking-widest text-[10px]"
+              variant="secondary"
+              className="rounded-full px-5 py-2.5 bg-black/3 border-black/5 text-primary font-mono text-[10px] uppercase tracking-[0.2em]"
             >
-              {/* Use dynamic category */}
               {post.category}
             </Badge>
-            {/* Use dynamic title */}
-            <h1 className="text-4xl md:text-6xl font-medium tracking-tight leading-[1.1]">
+            <h1 className="text-6xl md:text-9xl font-serif font-medium tracking-tighter leading-[0.8] text-balance">
               {post.title}
             </h1>
-            <div className="flex items-center justify-center md:justify-start gap-6 text-sm text-muted-foreground font-mono">
-              {/* Use dynamic date and reading time */}
-              <span>{post.date}</span>
-              <span>{post.readingTime} read</span>
+            <div className="flex items-center justify-center md:justify-start gap-8 text-[11px] text-muted-foreground font-mono uppercase tracking-widest pt-4">
+              <span className="flex items-center gap-2">
+                <Calendar className="size-3.5 opacity-40" />
+                {post.date}
+              </span>
+              <span className="flex items-center gap-2">
+                <Clock className="size-3.5 opacity-40" />
+                {post.readingTime}
+              </span>
             </div>
           </div>
 
@@ -86,12 +88,12 @@ export default async function BlogPostPage({
 
         {/* Post Content - Glossy Editorial Style */}
         <div className="space-y-12">
-          {/* Main Content / Introduction */}
-          <div className="prose dark:prose-invert prose-neutral max-w-none">
-            <p className="text-xl leading-relaxed text-muted-foreground first-letter:text-5xl first-letter:font-medium first-letter:mr-3 first-letter:float-left first-letter:text-foreground">
-              {post.content}
-            </p>
-          </div>
+          {/* Main Content */}
+          {post.content && (
+            <div className="journal-content">
+              <MermaidRenderer content={post.content} />
+            </div>
+          )}
 
           {/* Render Sections dynamically for high customization */}
           {post.sections?.map((section, idx) => (
@@ -104,7 +106,7 @@ export default async function BlogPostPage({
 
               {section.type === "text" && (
                 <div className="prose dark:prose-invert prose-neutral max-w-none">
-                  <p className="text-lg leading-relaxed text-muted-foreground">
+                  <p className="text-lg leading-relaxed text-muted-foreground font-normal">
                     {section.content}
                   </p>
                 </div>
@@ -117,16 +119,16 @@ export default async function BlogPostPage({
               )}
 
               {section.type === "code" && (
-                <div className="bg-secondary/30 border border-border/50 rounded-2xl p-8 font-mono text-sm overflow-hidden relative group">
-                  <div className="absolute top-4 right-4 text-[10px] uppercase tracking-widest text-muted-foreground opacity-50 font-mono">
+                <div className="bg-black/2 border border-black/5 rounded-[2.5rem] p-12 font-mono text-sm overflow-hidden relative group">
+                  <div className="absolute top-8 right-10 text-[10px] uppercase tracking-[0.2em] text-muted-foreground/40 font-mono">
                     {section.language || "code"}
                   </div>
-                  <div className="flex items-center gap-2 mb-4 opacity-50">
-                    <div className="size-2 rounded-full bg-red-500/50" />
-                    <div className="size-2 rounded-full bg-amber-500/50" />
-                    <div className="size-2 rounded-full bg-green-500/50" />
+                  <div className="flex items-center gap-2.5 mb-8 opacity-30">
+                    <div className="size-3 rounded-full bg-black/10" />
+                    <div className="size-3 rounded-full bg-black/10" />
+                    <div className="size-3 rounded-full bg-black/10" />
                   </div>
-                  <code className="block whitespace-pre text-foreground/90 overflow-x-auto">
+                  <code className="block whitespace-pre text-foreground/80 overflow-x-auto leading-relaxed">
                     {section.content}
                   </code>
                 </div>

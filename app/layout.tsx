@@ -1,26 +1,31 @@
 import type React from "react";
 import type { Metadata } from "next";
 
-import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 // Adding Playfair Display for editorial headlines alongside Geist
 
 import { PageTransition } from "@/components/page-transition";
 
-import { Geist_Mono, Playfair_Display } from "next/font/google";
+import { Geist_Mono, Inter, Cormorant_Garamond } from "next/font/google";
+import { Navigation } from "@/components/navigation";
 
 // Initialize fonts
-const geistMono = Geist_Mono({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-sans",
 });
 
-// Adding serif font for editorial impact
-const playfair = Playfair_Display({
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+});
+
+// Premium editorial serif
+const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   variable: "--font-serif",
-  weight: ["400", "500", "600", "700", "800", "900"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -54,12 +59,15 @@ export default function RootLayout({
 }>) {
   return (
     // Adding serif font variable to html element
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <body
-        className={`${geistMono.style} ${playfair.variable} font-sans antialiased selection:bg-primary/20`}
+        className={`${inter.variable} ${geistMono.variable} ${cormorant.variable} font-sans antialiased selection:bg-primary/20`}
+        suppressHydrationWarning
       >
-        <PageTransition>{children}</PageTransition>
-        <Analytics />
+        <PageTransition>
+          <Navigation />
+          {children}
+        </PageTransition>
       </body>
     </html>
   );
