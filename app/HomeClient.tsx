@@ -1,7 +1,9 @@
 "use client";
 
+import { useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useDynamicClipPath } from "@/lib/use-dynamic-clip-path";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,36 +18,25 @@ interface HomeClientProps {
 
 export default function HomeClient({ featuredProjects }: HomeClientProps) {
   const router = useRouter();
+  const heroRef = useRef<HTMLElement>(null);
+  const clipPath = useDynamicClipPath(heroRef, {
+    notchPadding: 6,
+  });
 
   return (
     <main className=" relative min-h-screen pt-8 pb-20 px-6 max-w-7xl mx-auto overflow-hidden selection:bg-primary/30">
       {/* Hero Section */}
-      <section className="bg-muted-foreground/10 clip-notch relative z-10 p-4 mb-48 space-y-12">
+      <section
+        ref={heroRef}
+        className="bg-muted-foreground/10 relative z-10 p-4 pt-32 mb-48 space-y-12"
+        style={{ clipPath }}
+      >
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
           className="space-y-8"
         >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="flex items-center gap-3"
-          >
-            <Badge
-              variant="secondary"
-              className="rounded-full px-5 py-2.5 bg-black/3 border-black/5 text-primary font-mono text-[10px] uppercase tracking-[0.2em] mb-8"
-            >
-              <motion.span
-                animate={{ opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
-                className="mr-3 size-1.5 rounded-full bg-primary"
-              />
-              Available for Projects
-            </Badge>
-          </motion.div>
-
           <h1 className="text-[clamp(4rem,15vw,10rem)] font-serif font-medium tracking-tighter leading-[0.8] text-balance">
             Building systems <br />
             <span className="italic font-light text-muted-foreground">

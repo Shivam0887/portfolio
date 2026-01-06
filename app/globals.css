@@ -1322,9 +1322,10 @@
     height: auto !important;
   }
 
-  .clip-notch {
+  /* Static clip-notch removed - now using dynamic JS-based clip-path in useDynamicClipPath hook */
+  /* .clip-notch {
     clip-path: path(
       "M 0 24 Q 0 0 24 0 L 376 0 Q 398 0 398 24 L 398 34 Q 398 58 424 58 L 806 58 Q 834 58 834 34 L 834 34 Q 834 0 878 0 L 1208 0 Q 1232 0 1232 24 L 1232 642 Q 1232 666 1208 666 L 24 666 Q 0 666 0 642 Z"
     );
-  }
+  } */
 }
