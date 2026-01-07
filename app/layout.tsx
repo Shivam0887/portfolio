@@ -52,6 +52,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { CustomCursor } from "@/components/custom-cursor";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -61,13 +63,11 @@ export default function RootLayout({
     // Adding serif font variable to html element
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${geistMono.variable} ${cormorant.variable} font-sans antialiased selection:bg-primary/20`}
+        className={`${inter.variable} ${geistMono.variable} ${cormorant.variable} font-sans antialiased selection:bg-primary/20 bg-[#0a0a0a]`}
         suppressHydrationWarning
       >
-        <PageTransition>
-          <Navigation />
-          {children}
-        </PageTransition>
+        <CustomCursor />
+        <PageTransition>{children}</PageTransition>
       </body>
     </html>
   );

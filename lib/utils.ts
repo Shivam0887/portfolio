@@ -10,6 +10,7 @@ import {
   Database,
   Shield,
   Layers,
+  LucideProps,
 } from "lucide-react";
 import React from "react";
 import type {
@@ -24,19 +25,19 @@ export type { ProjectData, Post, ProjectSection, PostSection };
 export { AVAILABLE_ICONS } from "./data.types";
 
 export interface Project extends Omit<ProjectData, "icon"> {
-  icon: React.ReactNode;
+  icon: React.ComponentType<LucideProps>;
 }
 
 // Icon mapping for dynamic icon resolution
-export const iconMap: Record<string, React.ReactNode> = {
-  Cpu: React.createElement(Cpu, { className: "size-6" }),
-  Code2: React.createElement(Code2, { className: "size-6" }),
-  Globe: React.createElement(Globe, { className: "size-6" }),
-  Sparkles: React.createElement(Sparkles, { className: "size-6" }),
-  Zap: React.createElement(Zap, { className: "size-6" }),
-  Database: React.createElement(Database, { className: "size-6" }),
-  Shield: React.createElement(Shield, { className: "size-6" }),
-  Layers: React.createElement(Layers, { className: "size-6" }),
+export const iconMap: Record<string, React.ComponentType<LucideProps>> = {
+  Cpu,
+  Code2,
+  Globe,
+  Sparkles,
+  Zap,
+  Database,
+  Shield,
+  Layers,
 };
 
 export function cn(...inputs: ClassValue[]) {

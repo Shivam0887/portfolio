@@ -1328,4 +1328,98 @@
       "M 0 24 Q 0 0 24 0 L 376 0 Q 398 0 398 24 L 398 34 Q 398 58 424 58 L 806 58 Q 834 58 834 34 L 834 34 Q 834 0 878 0 L 1208 0 Q 1232 0 1232 24 L 1232 642 Q 1232 666 1208 666 L 24 666 Q 0 666 0 642 Z"
     );
   } */
+  /* Noise Texture */
+  .noise-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    pointer-events: none;
+    background-image: url("/noise_bg.webp");
+    opacity: 0.08;
+    mix-blend-mode: soft-light;
+  }
+
+  @keyframes noise {
+    0% {
+      transform: translate(0, 0);
+    }
+    10% {
+      transform: translate(-1%, -1%);
+    }
+    20% {
+      transform: translate(1%, 1%);
+    }
+    30% {
+      transform: translate(-2%, 0);
+    }
+    40% {
+      transform: translate(1%, -2%);
+    }
+    50% {
+      transform: translate(-1%, 1%);
+    }
+    60% {
+      transform: translate(-2%, 1%);
+    }
+    70% {
+      transform: translate(2%, 1%);
+    }
+    80% {
+      transform: translate(1%, -1%);
+    }
+    90% {
+      transform: translate(-1%, 2%);
+    }
+    100% {
+      transform: translate(0, 0);
+    }
+  }
+
+  @keyframes sparkle {
+    0% {
+      background-position: 0% 0%;
+    }
+    25% {
+      background-position: 10% 5%;
+    }
+    50% {
+      background-position: -5% 10%;
+    }
+    75% {
+      background-position: 5% -5%;
+    }
+    100% {
+      background-position: 0% 0%;
+    }
+  }
+
+  .sprackly-text {
+    @apply text-transparent bg-clip-text;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"),
+      linear-gradient(to bottom, #fff, #fff);
+    background-blend-mode: soft-light;
+    background-size: 200px 200px, 100% 100%;
+    animation: sparkle 0.1s infinite steps(1);
+  }
+
+  .sprackly-text-gold {
+    @apply text-transparent bg-clip-text;
+    background-image: url("/noise_bg.webp"),
+      linear-gradient(to right, #fde68a, #facc15, #ea580c);
+    background-blend-mode: overlay;
+    background-size: 200px 200px, 100% 100%;
+  }
+
+  /* Premium Typography Utilities */
+  .tracking-tight-extreme {
+    letter-spacing: -0.04em;
+  }
+
+  .leading-none-extreme {
+    line-height: 0.8;
+  }
+
+  .text-editorial {
+    @apply font-serif italic font-light;
+  }
 }

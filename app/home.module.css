@@ -1,0 +1,28 @@
+.infiniteMove {
+  --animation-speed: 30s;
+  --animation-direction: forwards;
+  animation: move var(--animation-speed) linear infinite
+    var(--animation-direction);
+}
+
+.infiniteMove[data-animation-direction="left"] {
+  --animation-direction: forwards;
+}
+
+.infiniteMove[data-animation-direction="right"] {
+  --animation-direction: reverse;
+}
+
+.infiniteMove[data-animation-speed="slow"] {
+  --animation-speed: 60s;
+}
+
+.infiniteMove[data-animation-speed="fast"] {
+  --animation-speed: 15s;
+}
+
+@keyframes move {
+  to {
+    transform: translateX(calc(-50% - 3rem));
+  }
+}
