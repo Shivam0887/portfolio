@@ -1,7 +1,7 @@
 "use client";
 
 import { useEditor, EditorContent } from "@tiptap/react";
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
@@ -52,6 +52,19 @@ interface EditorProps {
   placeholder?: string;
 }
 
+type FileUpload =
+  | {
+      id: string;
+      name: string;
+      status: "uploading";
+    }
+  | {
+      id: string;
+      name: string;
+      status: "error";
+      error: string;
+    };
+
 const MenuButton = ({
   onClick,
   isActive = false,
@@ -74,8 +87,8 @@ const MenuButton = ({
     className={cn(
       "size-8 p-0 rounded-lg transition-all duration-200",
       isActive
-        ? "bg-black/10 text-primary shadow-inner"
-        : "text-muted-foreground hover:bg-black/5 hover:text-primary",
+        ? "bg-white/10 text-amber-300 shadow-inner"
+        : "text-white/50 hover:bg-white/8 hover:text-white",
       className
     )}
   >
@@ -105,7 +118,7 @@ export const Editor = ({
         openOnClick: false,
         HTMLAttributes: {
           class:
-            "text-primary underline underline-offset-4 decoration-primary/30",
+            "text-amber-300 underline underline-offset-4 decoration-amber-300/30",
         },
       }),
       Placeholder.configure({
@@ -120,11 +133,14 @@ export const Editor = ({
     editorProps: {
       attributes: {
         class:
-          "prose dark:prose-invert prose-neutral max-w-none min-h-[400px] focus:outline-none p-8 font-light leading-relaxed editor-content",
+          "prose prose-invert prose-neutral max-w-none min-h-[400px] focus:outline-none p-8 font-light leading-relaxed editor-content prose-headings:text-white prose-p:text-white/80 prose-strong:text-white prose-code:text-amber-300/80 prose-code:bg-white/[0.05] prose-pre:bg-white/[0.03] prose-pre:border prose-pre:border-white/[0.08] prose-blockquote:border-amber-300/30 prose-blockquote:text-white/60 prose-li:text-white/80 prose-a:text-amber-300",
       },
     },
     immediatelyRender: false,
   });
+
+  // Track uploading files
+  const [uploadingFiles, setUploadingFiles] = useState<FileUpload[]>([]);
 
   // Function to delete an image from uploadthing and remove from editor
   const deleteImage = useCallback(
@@ -133,7 +149,7 @@ export const Editor = ({
       if (!src) return;
 
       // Only delete from uploadthing if it's an uploadthing URL
-      if (src.includes("utfs.io") || src.includes("uploadthing.com")) {
+      if (src.includes("ufs.sh")) {
         try {
           await fetch("/api/upload/delete", {
             method: "DELETE",
@@ -170,51 +186,31 @@ export const Editor = ({
     [editor]
   );
 
-  // Attach delete buttons to images in editor
+  // Handle image deletion via event delegation (avoids direct DOM manipulation)
   useEffect(() => {
     if (!editor) return;
 
-    const editorElement = document.querySelector(".editor-content");
-    if (!editorElement) return;
-
-    const attachDeleteButtons = () => {
-      const images = editorElement.querySelectorAll("img");
-      images.forEach((img) => {
-        // Skip if already wrapped
-        if (img.parentElement?.classList.contains("editor-image-wrapper")) {
-          return;
+    const handleImageClick = (e: Event) => {
+      const target = e.target as HTMLElement;
+      // Check if clicked on delete button overlay
+      if (target.closest(".editor-image-delete-btn")) {
+        e.preventDefault();
+        e.stopPropagation();
+        const imgContainer = target.closest(".editor-image-container");
+        const img = imgContainer?.querySelector(
+          "img"
+        ) as HTMLImageElement | null;
+        if (img) {
+          deleteImage(img);
         }
-
-        // Create wrapper
-        const wrapper = document.createElement("div");
-        wrapper.className = "editor-image-wrapper";
-        wrapper.style.cssText =
-          "position: relative; display: inline-block; width: 100%;";
-
-        // Create delete button
-        const deleteBtn = document.createElement("button");
-        deleteBtn.className = "editor-image-delete";
-        deleteBtn.innerHTML = "×";
-        deleteBtn.type = "button";
-        deleteBtn.onclick = (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          deleteImage(img as HTMLImageElement);
-        };
-
-        // Wrap image
-        img.parentNode?.insertBefore(wrapper, img);
-        wrapper.appendChild(img);
-        wrapper.appendChild(deleteBtn);
-      });
+      }
     };
 
-    // Attach on content change
-    attachDeleteButtons();
-    editor.on("update", attachDeleteButtons);
+    const editorElement = document.querySelector(".editor-content");
+    editorElement?.addEventListener("click", handleImageClick);
 
     return () => {
-      editor.off("update", attachDeleteButtons);
+      editorElement?.removeEventListener("click", handleImageClick);
     };
   }, [editor, deleteImage]);
 
@@ -238,22 +234,21 @@ export const Editor = ({
       const files = (e.target as HTMLInputElement).files;
       if (!files || files.length === 0) return;
 
-      for (const file of Array.from(files)) {
-        // Insert a placeholder while uploading
-        const placeholderId = `upload-${Date.now()}-${Math.random()
-          .toString(36)
-          .slice(2, 9)}`;
+      const results = await Promise.allSettled(
+        Array.from(files).map(async (file) => {
+          const uploadId = `upload-${Date.now()}-${Math.random()
+            .toString(36)
+            .slice(2, 9)}`;
 
-        editor
-          .chain()
-          .focus()
-          .insertContent(
-            `<p><em id="${placeholderId}" style="color: #888;">Uploading ${file.name}...</em></p>`
-          )
-          .run();
+          setUploadingFiles((prev) => [
+            ...prev,
+            {
+              id: uploadId,
+              name: file.name,
+              status: "uploading",
+            },
+          ]);
 
-        try {
-          // Upload to server
           const formData = new FormData();
           formData.append("file", file);
 
@@ -263,26 +258,65 @@ export const Editor = ({
           });
 
           if (!response.ok) {
-            throw new Error("Upload failed");
+            const errorData = await response.json().catch(() => ({}));
+            return Promise.reject(
+              `${uploadId}: ${errorData.error}` ||
+                `${uploadId}: Upload failed with status ${response.status}`
+            );
           }
 
           const data = await response.json();
 
-          // Remove placeholder and insert the uploaded image
-          const placeholder = document.getElementById(placeholderId);
-          if (placeholder) {
-            placeholder.remove();
+          if (!data.url) {
+            return Promise.reject(`${uploadId}: No URL returned from server`);
           }
 
-          editor.chain().focus().setImage({ src: data.url }).run();
-        } catch (error) {
-          console.error("Upload error:", error);
-          // Remove placeholder on error
-          const placeholder = document.getElementById(placeholderId);
-          if (placeholder) {
-            placeholder.textContent = `Failed to upload ${file.name}`;
-          }
+          return {
+            id: uploadId,
+            name: file.name,
+            url: data.url as string,
+          };
+        })
+      );
+
+      // Separate successful and failed uploads
+      const successfulUploads: { id: string; name: string; url: string }[] = [];
+      const failedUploadIds: { id: string; reason: string }[] = [];
+
+      results.forEach((image) => {
+        if (image.status === "fulfilled") {
+          successfulUploads.push(image.value);
+        } else {
+          const [uploadId, reason] = (image.reason as string).split(":");
+          failedUploadIds.push({ id: uploadId, reason });
         }
+      });
+
+      // Batch state update: remove successful, mark failed
+      if (successfulUploads.length > 0 || failedUploadIds.length > 0) {
+        setUploadingFiles((prev) =>
+          prev
+            .filter((f) => !successfulUploads.some((s) => s.id === f.id))
+            .map((f) => {
+              const failed = failedUploadIds.find((fail) => fail.id === f.id);
+              return failed
+                ? { ...f, status: "error" as const, error: failed.reason }
+                : f;
+            })
+        );
+      }
+
+      // Insert all images in a single editor transaction
+      if (successfulUploads.length > 0) {
+        let chain = editor.chain().focus();
+        successfulUploads.forEach((img) => {
+          chain = chain.setImage({
+            src: img.url,
+            alt: img.name,
+            title: img.name,
+          });
+        });
+        chain.run();
       }
     };
 
@@ -290,9 +324,9 @@ export const Editor = ({
   };
 
   return (
-    <div className="group/editor border border-black/5 rounded-4xl overflow-hidden bg-white/40 backdrop-blur-md transition-all duration-500 hover:border-black/10 hover:shadow-2xl hover:shadow-black/2">
+    <div className="group/editor border border-white/8 rounded-xl overflow-hidden bg-white/2 backdrop-blur-md transition-all duration-500 hover:border-white/12">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-1 p-2 border-b border-black/5 bg-black/2 sticky top-0 z-20 backdrop-blur-xl">
+      <div className="flex flex-wrap items-center gap-1 p-2 border-b border-white/8 bg-white/3 sticky top-0 z-20 backdrop-blur-xl">
         <MenuButton
           onClick={() => editor.chain().focus().toggleBold().run()}
           isActive={editor.isActive("bold")}
@@ -312,7 +346,7 @@ export const Editor = ({
           <UnderlineIcon className="size-4" />
         </MenuButton>
 
-        <div className="w-px h-6 bg-black/5 mx-1" />
+        <div className="w-px h-6 bg-white/8 mx-1" />
 
         <MenuButton
           onClick={() =>
@@ -331,7 +365,7 @@ export const Editor = ({
           <Heading2 className="size-4" />
         </MenuButton>
 
-        <div className="w-px h-6 bg-black/5 mx-1" />
+        <div className="w-px h-6 bg-white/8 mx-1" />
 
         <MenuButton
           onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -346,7 +380,7 @@ export const Editor = ({
           <ListOrdered className="size-4" />
         </MenuButton>
 
-        <div className="w-px h-6 bg-black/5 mx-1" />
+        <div className="w-px h-6 bg-white/8 mx-1" />
 
         <MenuButton
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
@@ -377,17 +411,21 @@ export const Editor = ({
                 .updateAttributes("codeBlock", { language: e.target.value })
                 .run()
             }
-            className="text-[10px] font-mono bg-white/50 border border-black/5 rounded-md px-2 py-1 outline-none focus:ring-1 ring-black/10 transition-all"
+            className="text-[10px] font-mono bg-white/5 border border-white/8 rounded-md px-2 py-1 outline-none focus:border-amber-300/30 transition-all text-white"
           >
             {LANGUAGES.map((lang) => (
-              <option key={lang.label} value={lang.value || ""}>
+              <option
+                key={lang.label}
+                value={lang.value || ""}
+                className="bg-[#0a0a0a] text-white"
+              >
                 {lang.label}
               </option>
             ))}
           </select>
         )}
 
-        <div className="w-px h-6 bg-black/5 mx-1" />
+        <div className="w-px h-6 bg-white/8 mx-1" />
 
         <MenuButton
           onClick={() =>
@@ -427,14 +465,43 @@ export const Editor = ({
       </div>
 
       {/* Content Area */}
-      <div className="relative">
+      <div className="relative bg-[#0f0f0f]">
         <EditorContent editor={editor} />
-        {/* Visual guide for premium feel */}
-        <div className="absolute top-0 right-0 p-4 pointer-events-none opacity-20 hidden md:block">
-          <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-            Advanced Editor Mode (Tiptap + Lowlight)
-          </span>
-        </div>
+
+        {/* Upload Status Overlay */}
+        {uploadingFiles.length > 0 && (
+          <div className="absolute bottom-4 left-4 right-4 flex flex-col gap-2 z-10">
+            {uploadingFiles.map((file) => (
+              <div
+                key={file.id}
+                className={cn(
+                  "inline-flex items-center gap-3 px-4 py-3 rounded-xl backdrop-blur-md transition-all duration-300",
+                  file.status === "uploading"
+                    ? "bg-linear-to-r from-amber-500/10 to-amber-600/5 border border-amber-400/20 shadow-[0_0_20px_rgba(251,191,36,0.15)]"
+                    : "bg-linear-to-r from-red-500/15 to-red-600/8 border border-red-400/30"
+                )}
+              >
+                {file.status === "uploading" ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-amber-400/20 border-t-amber-400 rounded-full animate-spin" />
+                    <span className="text-sm font-medium text-amber-300/90">
+                      Uploading {file.name}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-5 h-5 flex items-center justify-center bg-red-500/20 rounded-full text-red-400 text-xs font-bold">
+                      ✕
+                    </div>
+                    <span className="text-sm font-medium text-red-400">
+                      Failed to upload {file.name}
+                    </span>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

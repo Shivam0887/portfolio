@@ -31,7 +31,7 @@ async function createAdmin() {
   console.log("Creating admin user with email admin@example.com...");
   try {
     // Dynamic import to ensure process.env is populated first
-    const { auth } = await import("../lib/auth");
+    const { auth } = await import("../lib/auth/auth");
 
     const user = await auth.api.signUpEmail({
       body: {

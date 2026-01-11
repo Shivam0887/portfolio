@@ -2,7 +2,7 @@ import "server-only";
 import dbConnect from "@/lib/mongodb";
 import Project from "@/lib/models/Project";
 import Post from "@/lib/models/Post";
-import type { ProjectData, Post as PostType } from "@/lib/data.types";
+import type { ProjectData, Post as PostType } from "@/types/data.types";
 
 // ==================== PROJECTS ====================
 

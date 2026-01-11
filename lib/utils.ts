@@ -18,11 +18,11 @@ import type {
   Post,
   ProjectSection,
   PostSection,
-} from "./data.types";
+} from "../types/data.types";
 
 // Re-export types
 export type { ProjectData, Post, ProjectSection, PostSection };
-export { AVAILABLE_ICONS } from "./data.types";
+export { AVAILABLE_ICONS } from "../types/data.types";
 
 export interface Project extends Omit<ProjectData, "icon"> {
   icon: React.ComponentType<LucideProps>;

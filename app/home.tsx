@@ -23,8 +23,9 @@ import {
   X,
 } from "lucide-react";
 import { CharacterReveal } from "@/components/character-reveal";
-import type { ProjectData } from "@/lib/data.types";
+import type { ProjectData } from "@/types/data.types";
 import { cn } from "@/lib/utils";
+import { PremiumNavbar } from "@/components/premium-navbar";
 
 interface HomeClientProps {
   featuredProjects: ProjectData[];
@@ -46,165 +47,8 @@ const marqueeItems = [
   "Docker",
   "PostgreSQL",
   "Kafka",
+  "React Native",
 ];
-
-// ========== PREMIUM NAVBAR ==========
-function PremiumNavbar() {
-  const pathname = usePathname();
-  const { scrollY } = useScroll();
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    setIsScrolled(latest > 50);
-  });
-
-  const navItems = [
-    { name: "Work", href: "/" },
-    { name: "Projects", href: "/projects" },
-    { name: "Journal", href: "/journal" },
-    { name: "Connect", href: "/network" },
-  ];
-
-  return (
-    <>
-      <motion.header
-        className="fixed top-0 left-0 right-0 z-100"
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <motion.div
-          className="mx-4 md:mx-8 mt-4 rounded-3xl transition-all duration-700 ease-[0.16,1,0.3,1]"
-          animate={{
-            backgroundColor: isScrolled
-              ? "rgba(10, 10, 10, 0.4)"
-              : "rgba(10, 10, 10, 0)",
-            backdropFilter: isScrolled ? "blur(32px)" : "blur(0px)",
-            borderColor: isScrolled
-              ? "rgba(255, 255, 255, 0.05)"
-              : "rgba(255, 255, 255, 0)",
-            paddingLeft: isScrolled ? "1.5rem" : "0.5rem",
-            paddingRight: isScrolled ? "1.5rem" : "0.5rem",
-          }}
-          style={{ border: "1px solid transparent" }}
-        >
-          <div className="flex items-center justify-between py-4">
-            {/* Logo */}
-            <Link href="/" className="relative group overflow-hidden">
-              <motion.span
-                className="text-sm font-bold tracking-tighter"
-                whileHover={{ y: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="h-5 flex items-center">
-                  <span className="text-white">SHIVAM</span>
-                  <span className="text-amber-400">.</span>
-                </div>
-                <div className="h-5 flex items-center text-amber-400">
-                  SHIVAM<span className="text-white">.</span>
-                </div>
-              </motion.span>
-            </Link>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-1">
-              {navItems.map((item) => {
-                const isActive =
-                  pathname === item.href ||
-                  (item.href !== "/" && pathname.startsWith(item.href));
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="relative px-5 py-2.5 text-[10px] tracking-[0.2em] uppercase transition-colors"
-                  >
-                    <span
-                      className={
-                        isActive
-                          ? "text-white"
-                          : "text-white/40 hover:text-white"
-                      }
-                    >
-                      {item.name}
-                    </span>
-                    {isActive && (
-                      <motion.div
-                        layoutId="nav-indicator"
-                        className="absolute inset-0 bg-white/3 rounded-full -z-10"
-                        transition={{
-                          type: "spring",
-                          bounce: 0.15,
-                          duration: 0.8,
-                        }}
-                      />
-                    )}
-                  </Link>
-                );
-              })}
-            </nav>
-
-            {/* Right side */}
-            <div className="flex items-center gap-6">
-              <div className="hidden lg:flex items-center gap-4">
-                {socials.map((social) => (
-                  <motion.a
-                    key={social.label}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-white/40 hover:text-white transition-colors"
-                    whileHover={{ scale: 1.1, y: -1 }}
-                  >
-                    <social.icon className="size-3.5" />
-                  </motion.a>
-                ))}
-              </div>
-
-              <motion.button
-                className="md:hidden p-2 text-white/40 hover:text-white"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              >
-                {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-              </motion.button>
-            </div>
-          </div>
-        </motion.div>
-      </motion.header>
-
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            className="fixed inset-0 z-90 bg-[#0a0a0a] md:hidden"
-            initial={{ opacity: 0, clipPath: "circle(0% at 90% 5%)" }}
-            animate={{ opacity: 1, clipPath: "circle(150% at 90% 5%)" }}
-            exit={{ opacity: 0, clipPath: "circle(0% at 90% 5%)" }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <div className="flex flex-col items-center justify-center h-full gap-6">
-              {navItems.map((item, i) => (
-                <motion.div
-                  key={item.href}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 + i * 0.1 }}
-                >
-                  <Link
-                    href={item.href}
-                    className="text-4xl font-black tracking-tighter text-white/60 hover:text-amber-400 transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {item.name}
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
-  );
-}
 
 // ========== MAIN COMPONENT ==========
 export default function Home({ featuredProjects }: HomeClientProps) {
@@ -269,7 +113,7 @@ export default function Home({ featuredProjects }: HomeClientProps) {
               <p className="text-lg md:text-2xl text-white/40 leading-tight font-medium">
                 Designing & building{" "}
                 <span className="text-white">technical systems</span> that
-                redefine the limits of the web.
+                redefine the limits of the web and mobile apps.
               </p>
               <div className="flex items-center gap-6">
                 <Link
@@ -377,7 +221,9 @@ export default function Home({ featuredProjects }: HomeClientProps) {
               href="/projects"
               className="inline-block px-12 py-5 rounded-full border border-white/10 text-[10px] tracking-[0.4em] uppercase hover:bg-white hover:text-black transition-all font-bold"
             >
-              View All 24+ Projects
+              {featuredProjects.length > 0
+                ? `View All ${featuredProjects.length} Projects`
+                : "Coming Soon"}
             </Link>
           </motion.div>
         </div>
@@ -441,7 +287,7 @@ export default function Home({ featuredProjects }: HomeClientProps) {
           transition={{ duration: 1 }}
           className="text-center max-w-4xl"
         >
-          <span className="text-[10px] tracking-[0.5em] text-white/30 uppercase mb-8 block font-mono">
+          <span className="text-xs tracking-[0.5em] text-white/50 uppercase mb-8 block font-mono">
             Connection
           </span>
           <h2 className="text-4xl md:text-8xl font-black tracking-tight-extreme uppercase mb-12">
@@ -460,54 +306,14 @@ export default function Home({ featuredProjects }: HomeClientProps) {
           </p>
           <div className="flex flex-col md:flex-row items-center justify-center gap-8">
             <Link
-              href="mailto:hello@example.com"
+              href="https://www.linkedin.com/in/shivamsharma0887"
               className="text-2xl md:text-4xl font-bold tracking-tighter border-b-4 border-amber-400 pb-2 hover:bg-amber-400 hover:text-black transition-all px-4"
             >
-              hello@example.com
+              LinkedIn
             </Link>
           </div>
         </motion.div>
       </section>
-
-      {/* ========== FOOTER ========== */}
-      <footer className="px-6 md:px-12 py-12 border-t border-white/5">
-        <div className="max-w-[1920px] mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
-          <div className="flex flex-col gap-4">
-            <span className="text-[10px] tracking-[0.2em] font-bold">
-              SHIVAM© 2025
-            </span>
-            <div className="flex gap-4">
-              {socials.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  className="text-white/20 hover:text-white transition-colors"
-                >
-                  <social.icon size={16} />
-                </a>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-x-12 gap-y-4">
-            {["Work", "Projects", "Journal", "Connect"].map((link) => (
-              <Link
-                key={link}
-                href="/"
-                className="text-[10px] tracking-[0.2em] uppercase font-bold text-white/50 hover:text-white"
-              >
-                {link}
-              </Link>
-            ))}
-          </div>
-
-          <div className="text-right">
-            <span className="text-[10px] tracking-[0.2em] text-white/50 uppercase">
-              Built with focus & precision
-            </span>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

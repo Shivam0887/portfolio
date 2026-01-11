@@ -2,166 +2,165 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import {
-  FolderKanban,
-  BookOpen,
-  Plus,
-  ArrowRight,
-  Sparkles,
-  LayoutGrid,
-} from "lucide-react";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { HoverIcon } from "@/components/premium-icons";
+import { ArrowRight, ArrowUpRight, Home } from "lucide-react";
 
 export default function AdminDashboard() {
   return (
-    <main className="relative min-h-screen pt-24 pb-20 px-6 max-w-6xl mx-auto">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="mb-16"
-      >
-        <Badge
-          variant="secondary"
-          className="rounded-full px-5 py-2 bg-black/3 border-black/5 text-primary font-mono text-[10px] uppercase tracking-[0.2em] mb-8"
-        >
-          <Sparkles className="mr-3 size-3.5 opacity-60" />
-          System Administrator
-        </Badge>
-        <h1 className="text-6xl md:text-8xl font-serif font-medium tracking-tight mb-6">
-          Management
-        </h1>
-        <p className="text-xl md:text-2xl text-muted-foreground/80 max-w-2xl font-light leading-relaxed">
-          The central hub for your high-performance portfolio. Refine your
-          projects and journal with editorial precision.
-        </p>
-      </motion.div>
+    <main className="bg-[#0a0a0a] text-white min-h-screen selection:bg-amber-300/20 selection:text-amber-100 relative">
+      {/* Noise Texture */}
+      <div
+        className="fixed inset-0 pointer-events-none opacity-[0.015] z-50"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+        }}
+      />
 
-      {/* Quick Actions Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-        {/* Projects Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
+      {/* Ambient Glow */}
+      <div className="fixed top-1/4 left-1/2 -translate-x-1/2 w-[900px] h-[700px] bg-amber-500/[0.02] blur-[180px] pointer-events-none" />
+
+      <div className="relative max-w-6xl mx-auto pt-24 pb-24 px-6">
+        {/* Header Section */}
+        <motion.header
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.1 }}
+          transition={{ duration: 0.8 }}
+          className="mb-16"
         >
-          <Card className="bento-item border-0 cursor-default">
-            <CardHeader className="p-8">
-              <div className="size-14 rounded-2xl bg-background/80 backdrop-blur-sm flex items-center justify-center border border-border/20 mb-6 group-hover:border-primary/30 group-hover:bg-primary/10 transition-all duration-500">
-                <HoverIcon
-                  icon={FolderKanban}
-                  animation="bounce"
-                  className="size-7"
-                />
+          {/* Status Indicator */}
+          <div className="flex items-center gap-3">
+            <div className="size-2 rounded-full bg-emerald-400 animate-pulse shadow-lg shadow-emerald-400/50" />
+            <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-white/40">
+              Authenticated • Admin Session
+            </span>
+          </div>
+        </motion.header>
+
+        {/* Main Actions Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-20">
+          {/* Projects Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <Link href="/admin/projects" className="block group">
+              <div className="border border-white/[0.08] p-10 h-full hover:border-amber-300/30 transition-all duration-500 relative overflow-hidden">
+                {/* Hover glow */}
+                <div className="absolute inset-0 bg-gradient-to-br from-amber-400/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                <div className="relative">
+                  {/* Number */}
+                  <span className="text-[120px] font-black text-white/[0.03] absolute -top-8 -right-4 leading-none select-none">
+                    01
+                  </span>
+
+                  {/* Content */}
+                  <div className="relative">
+                    <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-amber-300/60 mb-4 block">
+                      Manage
+                    </span>
+                    <h2 className="text-5xl md:text-6xl font-black uppercase tracking-tight mb-4 group-hover:text-amber-300 transition-colors duration-300">
+                      Projects
+                    </h2>
+                    <p className="text-white/40 mb-8 max-w-sm leading-relaxed">
+                      Case studies, technical work, and portfolio pieces.
+                    </p>
+
+                    <div className="flex items-center gap-2 text-white/50 group-hover:text-amber-300 transition-colors">
+                      <span className="text-sm font-medium uppercase tracking-widest">
+                        Enter
+                      </span>
+                      <ArrowRight className="size-4 group-hover:translate-x-2 transition-transform duration-300" />
+                    </div>
+                  </div>
+                </div>
               </div>
-              <CardTitle className="text-2xl font-serif mb-2">
-                Projects
-              </CardTitle>
-              <CardDescription className="text-base">
-                Showcase your work with detailed project pages
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="px-8 pb-8 space-y-4 border border-border/50">
-              <div className="flex gap-3">
-                <Button
-                  asChild
-                  className="flex-1 rounded-full h-12 hover:bg-foreground/90 border-0 group/btn"
-                >
-                  <Link href="/admin/projects">
-                    <LayoutGrid className="mr-2 size-4" />
-                    View All
-                    <ArrowRight className="ml-2 size-4 transition-transform group-hover/btn:translate-x-1" />
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  className="flex-1 rounded-full h-12 hover:bg-foreground/90"
-                >
-                  <Link href="/admin/projects/new">
-                    <Plus className="mr-2 size-4" />
-                    Add New
-                  </Link>
-                </Button>
+            </Link>
+          </motion.div>
+
+          {/* Journal Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          >
+            <Link href="/admin/journals" className="block group">
+              <div className="border border-white/[0.08] p-10 h-full hover:border-amber-300/30 transition-all duration-500 relative overflow-hidden">
+                {/* Hover glow */}
+                <div className="absolute inset-0 bg-gradient-to-br from-amber-400/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                <div className="relative">
+                  {/* Number */}
+                  <span className="text-[120px] font-black text-white/[0.03] absolute -top-8 -right-4 leading-none select-none">
+                    02
+                  </span>
+
+                  {/* Content */}
+                  <div className="relative">
+                    <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-amber-300/60 mb-4 block">
+                      Write
+                    </span>
+                    <h2 className="text-5xl md:text-6xl font-black uppercase tracking-tight mb-4 group-hover:text-amber-300 transition-colors duration-300">
+                      Journal
+                    </h2>
+                    <p className="text-white/40 mb-8 max-w-sm leading-relaxed">
+                      Thoughts, insights, and technical deep-dives.
+                    </p>
+
+                    <div className="flex items-center gap-2 text-white/50 group-hover:text-amber-300 transition-colors">
+                      <span className="text-sm font-medium uppercase tracking-widest">
+                        Enter
+                      </span>
+                      <ArrowRight className="size-4 group-hover:translate-x-2 transition-transform duration-300" />
+                    </div>
+                  </div>
+                </div>
               </div>
-            </CardContent>
-          </Card>
+            </Link>
+          </motion.div>
+        </div>
+
+        {/* Quick Actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="flex flex-wrap gap-4 mb-20"
+        >
+          <Link
+            href="/admin/projects/new"
+            className="px-6 py-4 bg-white text-black font-bold text-sm uppercase tracking-tight hover:bg-amber-300 transition-colors flex items-center gap-3"
+          >
+            New Project
+            <ArrowUpRight className="size-4" />
+          </Link>
+          <Link
+            href="/admin/journals/new"
+            className="px-6 py-4 border border-white/[0.1] text-white/60 font-medium text-sm uppercase tracking-tight hover:border-amber-300/50 hover:text-amber-300 transition-colors flex items-center gap-3"
+          >
+            New Journal Entry
+            <ArrowUpRight className="size-4" />
+          </Link>
         </motion.div>
 
-        {/* Journal Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
+        {/* Footer */}
+        <motion.footer
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className="pt-10 border-t border-white/[0.05]"
         >
-          <Card className="bento-item border-0 cursor-default">
-            <CardHeader className="p-8">
-              <div className="size-14 rounded-2xl bg-background/80 backdrop-blur-sm flex items-center justify-center border border-border/20 mb-6 group-hover:border-primary/30 group-hover:bg-primary/10 transition-all duration-500">
-                <HoverIcon
-                  icon={BookOpen}
-                  animation="ring"
-                  className="size-7"
-                />
-              </div>
-              <CardTitle className="text-2xl font-serif mb-2">
-                Journal
-              </CardTitle>
-              <CardDescription className="text-base">
-                Share your thoughts, tutorials, and insights
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="px-8 pb-8 space-y-4 border border-border/50">
-              <div className="flex gap-3">
-                <Button
-                  asChild
-                  className="flex-1 rounded-full h-12 hover:bg-foreground/90 border-0 group/btn"
-                >
-                  <Link href="/admin/journals">
-                    <LayoutGrid className="mr-2 size-4" />
-                    View All
-                    <ArrowRight className="ml-2 size-4 transition-transform group-hover/btn:translate-x-1" />
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  className="flex-1 rounded-full h-12 hover:bg-foreground/90 border-0 group/btn"
-                >
-                  <Link href="/admin/journals/new">
-                    <Plus className="mr-2 size-4" />
-                    Add New
-                  </Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-
-      {/* Back to Site */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8, delay: 0.4 }}
-        className="text-center"
-      >
-        <Button asChild variant="ghost" className="rounded-full px-6">
           <Link
             href="/"
-            className="text-muted-foreground hover:text-foreground"
+            className="inline-flex items-center gap-3 text-white/30 hover:text-amber-300 transition-colors"
           >
-            ← Back to Site
+            <Home className="size-4" />
+            <span className="text-[10px] font-mono uppercase tracking-[0.25em]">
+              Return to Site
+            </span>
           </Link>
-        </Button>
-      </motion.div>
+        </motion.footer>
+      </div>
     </main>
   );
 }

@@ -30,21 +30,31 @@ export async function POST(request: Request) {
     const response = await utapi.uploadFiles(file);
 
     if (response.error) {
-      console.error("Upload error:", response.error);
+      console.error("Uploadthing error:", response.error);
       return NextResponse.json(
-        { error: "Failed to upload image" },
+        { error: `Uploadthing failed: ${response.error.message}` },
         { status: 500 }
       );
     }
+
+    if (!response.data) {
+      console.error("No data in Uploadthing response");
+      return NextResponse.json(
+        { error: "Invalid response from upload service" },
+        { status: 500 }
+      );
+    }
+
+    console.log("Upload successful:", response.data.ufsUrl);
 
     return NextResponse.json({
       url: response.data.ufsUrl,
       key: response.data.key,
     });
   } catch (error) {
-    console.error("Upload error:", error);
+    console.error("Critical upload error:", error);
     return NextResponse.json(
-      { error: "Failed to upload image" },
+      { error: "Internal server error during upload" },
       { status: 500 }
     );
   }
